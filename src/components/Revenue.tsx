@@ -9,6 +9,7 @@ const Revenue = () => {
     const [successMsg, setSuccessMsg] = useState('');
     const [loading, setLoading] = useState(false);
     const { confirm, ConfirmModal } = useConfirm();
+    const [selectedId, setSelectedId] = useState<string | null>(null);
 
     const [ledger, setLedger] = useState([])
     const [clients, setClients] = useState([]);
@@ -216,9 +217,14 @@ const Revenue = () => {
                             key = {String(item.id)}
                             onClick={() => {
                                 setFormData({ ...item, id: item.id });
-                                console.log(String(formData.id) +' '+String(item.id));
+                                setSelectedId(item.id);
+                                console.log(String(formData.id) +' = '+String(item.id));
                             }}
-                            className={formData.id === item.id ? 'bg-gray-100 dark:bg-gray-800' : ''}
+                            className={
+                                selectedId === item.id
+                                    ? 'bg-gray-100 dark:bg-gray-800'
+                                    : 'hover:bg-gray-50 dark:hover:bg-gray-900'
+                            }
                         >
                             <TableCell>{String(item.type)}</TableCell>
                             <TableCell>{String(item.currency)}</TableCell>
@@ -227,6 +233,18 @@ const Revenue = () => {
                                 {item.clients?.company_name || `${item.clients?.first_name} ${item.clients?.last_name}`}
                             </TableCell>
                             <TableCell className="text-right">
+                                {selectedId === item.id && (
+                                    <Button
+                                        size="sm"
+                                        variant="light"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDelete(item.id);
+                                        }}
+                                    >
+                                        Delete1
+                                    </Button>
+                                    )}
 
                                 {String(formData.id) === String(item.id) && (
                                     <Button
@@ -237,7 +255,7 @@ const Revenue = () => {
                                             handleDelete(item.id);
                                         }}
                                     >
-                                        Delete
+                                        Delete2
                                     </Button>
                                 )}
                             </TableCell>
