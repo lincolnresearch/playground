@@ -1,14 +1,14 @@
 import {useState, useEffect} from 'react'
 import {supabase} from '..//config/supabase.ts'
 import {Button, Form, Table, TableBody, TableColumn, TableHeader, TableRow, TableCell, Spinner} from "@heroui/react";
-import {useConfirm} from "@/hooks/useConfirm.tsx";
+import {useConfirmModal} from "@/hooks/useConfirmModal";
 
 
 const Revenue = () => {
     const [errorMsg, setErrorMsg] = useState('');
     const [successMsg, setSuccessMsg] = useState('');
     const [loading, setLoading] = useState(false);
-    const {confirm, ConfirmModal} = useConfirm();
+    const {confirm, ConfirmModal} = useConfirmModal();
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
     const [ledger, setLedger] = useState([])
@@ -185,13 +185,23 @@ const Revenue = () => {
      * @param id
      */
     const handleDelete = async (id: string) => {
-        const approved = await confirm();
+        const approved = await confirm({
+            title: "Delete entry?",
+            message: "This will mark the record as deleted. Continue?"
+        });
         if (!approved) return;
 
-        setLoading(true);
-        await supabase.from('ledger').delete().eq('id', id);
+        await supabase.from('ledger').update({ deleted: true }).eq('id', id);
+        setSuccessMsg('Entry deleted');
         await fetchLedger();
-        setLoading(false);
+        setFormData({
+            id: 0,
+            type: '',
+            amount: '',
+            currency: 'GBP',
+            client_id: ''
+        });
+        setSelectedId(null);
     };
 
     return (
@@ -216,7 +226,7 @@ const Revenue = () => {
                         <TableRow
                             key={String(item.id)}
                             onClick={() => {
-                                setFormData({ ...item, id: item.id });
+                                setFormData({...item, id: item.id});
                                 requestAnimationFrame(() => setSelectedId(item.id));
                             }}
                             className={
