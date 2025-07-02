@@ -8,7 +8,7 @@ const Revenue = () => {
     const [errorMsg, setErrorMsg] = useState('');
     const [successMsg, setSuccessMsg] = useState('');
     const [loading, setLoading] = useState(false);
-    const { confirm, ConfirmModal } = useConfirm();
+    const {confirm, ConfirmModal} = useConfirm();
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
     const [ledger, setLedger] = useState([])
@@ -62,7 +62,7 @@ const Revenue = () => {
         if (ledger?.length) {
             setLedger(ledger)
             setSuccessMsg('Ledger loaded');
-            console.table(ledger);
+            // console.table(ledger);
         }
         if (error) {
             setErrorMsg('Something went wrong.');
@@ -75,7 +75,7 @@ const Revenue = () => {
      * Tested this. It works, loading spinner is OK
      */
     // @ts-ignore
-    async function simulateDelay(){
+    async function simulateDelay() {
         setLoading(true);
         await new Promise((r) => setTimeout(r, 2048)); // TEMP delay
         await fetchLedger();
@@ -87,10 +87,10 @@ const Revenue = () => {
      * @param formData
      */
     async function addOrUpdateEntry(formData) {
-        const { user } = (await supabase.auth.getUser()).data;
-        const { type, amount, currency, client_id } = formData;
+        const {user} = (await supabase.auth.getUser()).data;
+        const {type, amount, currency, client_id} = formData;
 
-        const { data: app_user, error: userFetchError } = await supabase
+        const {data: app_user, error: userFetchError} = await supabase
             .from('users')
             .select('*')
             .eq('auth_user_id', user.id);
@@ -100,9 +100,9 @@ const Revenue = () => {
 
         if (formData.id) {
 
-            const { error: updateError } = await supabase
+            const {error: updateError} = await supabase
                 .from('ledger')
-                .update({ type, amount, currency, client_id })
+                .update({type, amount, currency, client_id})
                 .eq('id', formData.id);
 
             if (updateError) {
@@ -121,7 +121,7 @@ const Revenue = () => {
 
             setSuccessMsg('Entry updated!');
         } else {
-            const {data:result, error: insertError} = await supabase.from('ledger')
+            const {data: result, error: insertError} = await supabase.from('ledger')
                 .insert([
                     {
                         type,
@@ -135,7 +135,7 @@ const Revenue = () => {
                 setErrorMsg(insertError.message);
             } else {
                 setSuccessMsg(`Entry added! ${result ? JSON.stringify(result) : ''}`);
-                console.log(result)
+                // console.log(result)
                 await fetchLedger(); // refresh list
             }
             setFormData({
@@ -153,7 +153,7 @@ const Revenue = () => {
      */
     async function fetchClients() {
         setLoading(true);
-        const { data, error } = await supabase
+        const {data, error} = await supabase
             .from('clients')
             .select('id, company_name, first_name, last_name');
 
@@ -214,11 +214,10 @@ const Revenue = () => {
                     {(item) => (
 
                         <TableRow
-                            key = {String(item.id)}
+                            key={String(item.id)}
                             onClick={() => {
                                 setFormData({ ...item, id: item.id });
-                                setSelectedId(item.id);
-                                console.log(String(formData.id) +' = '+String(item.id));
+                                requestAnimationFrame(() => setSelectedId(item.id));
                             }}
                             className={
                                 selectedId === item.id
@@ -226,6 +225,7 @@ const Revenue = () => {
                                     : 'hover:bg-gray-50 dark:hover:bg-gray-900'
                             }
                         >
+
                             <TableCell>{String(item.type)}</TableCell>
                             <TableCell>{String(item.currency)}</TableCell>
                             <TableCell>{formatCurrency(item.amount, item.currency)}</TableCell>
@@ -242,24 +242,20 @@ const Revenue = () => {
                                             handleDelete(item.id);
                                         }}
                                     >
-                                        Delete1
-                                    </Button>
-                                    )}
-
-                                {String(formData.id) === String(item.id) && (
-                                    <Button
-                                        size="sm"
-                                        variant="light"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDelete(item.id);
-                                        }}
-                                    >
-                                        Delete2
+                                        Delete
                                     </Button>
                                 )}
-                            </TableCell>
+                                <Button
+                                    variant="flat"
+                                    onClick={async () => {
+                                        const ok = await confirm();
+                                        console.log('Confirmed?', ok);
+                                    }}
+                                >
+                                    Test Confirm
+                                </Button>
 
+                            </TableCell>
                         </TableRow>
                     )}
                 </TableBody>
@@ -273,6 +269,23 @@ const Revenue = () => {
                 <Button onSubmit={fetchLedger} type="submit" color="primary" fullWidth>
                     Refresh
                 </Button>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                        setFormData({
+                            id: 0,
+                            type: '',
+                            amount: '',
+                            currency: 'GBP',
+                            client_id: ''
+                        });
+                        setSelectedId(null);
+                    }}
+                >
+                    + New Entry
+                </Button>
+
             </div>
             <div className="space-y-4">
                 <p className="text-default-50">&nbsp;</p>
@@ -336,7 +349,7 @@ const Revenue = () => {
                     <p className="text-default-50">&nbsp;</p>
                     {loading && (
                         <div className="flex items-center justify-center gap-2 text-sm text-blue-500">
-                            <Spinner size="lg" />
+                            <Spinner size="lg"/>
                             Working on it...
                         </div>
                     )}
