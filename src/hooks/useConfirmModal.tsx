@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Modal, Button } from "@heroui/react";
+import {useState} from 'react';
+import {Modal, Button} from "@heroui/react";
 
 type ConfirmOptions = {
     title?: string;
@@ -24,17 +24,20 @@ export function useConfirmModal() {
         resolver?.(result);
     };
 
-    const ConfirmModal = visible ? (
-        <Modal title={options.title || "Are you sure?"} onClose={() => handleClose(false)}>
-            <div className="text-default-500 text-sm mb-4">
-                {options.message || "This action cannot be undone."}
-            </div>
-            <div className="flex justify-end gap-2">
-                <Button onClick={() => handleClose(true)}>Confirm</Button>
-                <Button variant="ghost" onClick={() => handleClose(false)}>Cancel</Button>
-            </div>
-        </Modal>
-    ) : null;
+    const ConfirmModal = () => (
+        visible ? (
+            <Modal title={options.title || "Are you sure?"} onClose={() => handleClose(false)}>
+                <div className="text-default-500 text-sm mb-4">
+                    {options.message || "This action cannot be undone."}
+                </div>
+                <div className="flex justify-end gap-2">
+                    <Button onClick={() => handleClose(true)}>Confirm</Button>
+                    <Button variant="ghost" onClick={() => handleClose(false)}>Cancel</Button>
+                </div>
+            </Modal>
+        ) : null
+    );
 
-    return { confirm, ConfirmModal };
+    return {confirm, ConfirmModal};
 }
+export default useConfirmModal;
