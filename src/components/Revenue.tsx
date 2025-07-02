@@ -88,6 +88,7 @@ const Revenue = () => {
     async function addOrUpdateEntry(formData) {
         const { user } = (await supabase.auth.getUser()).data;
         const { type, amount, currency, client_id } = formData;
+
         const { data: app_user, error: userFetchError } = await supabase
             .from('users')
             .select('*')
@@ -97,17 +98,26 @@ const Revenue = () => {
         }
 
         if (formData.id) {
-            const { data:result, error: updateError } = await supabase
+
+            const { error: updateError } = await supabase
                 .from('ledger')
                 .update({ type, amount, currency, client_id })
                 .eq('id', formData.id);
-            setSuccessMsg(`Entry updated! ${result ? JSON.stringify(result) : ''}`);
+
             if (updateError) {
                 setErrorMsg(updateError.message);
             } else {
-                setSuccessMsg(`Entry updated! ${result ? JSON.stringify(result) : ''}`);
+                setSuccessMsg('Entry updated!');
                 await fetchLedger();
+                setFormData({
+                    id: 0,
+                    type: '',
+                    amount: '',
+                    currency: 'GBP',
+                    client_id: ''
+                });
             }
+
             setSuccessMsg('Entry updated!');
         } else {
             const {data:result, error: insertError} = await supabase.from('ledger')
