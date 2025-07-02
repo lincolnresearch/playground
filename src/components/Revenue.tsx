@@ -214,7 +214,10 @@ const Revenue = () => {
 
                         <TableRow
                             key = {String(item.id)}
-                            onClick={() => setFormData({ ...item, id: item.id })}
+                            onClick={() => {
+                                setFormData({ ...item, id: item.id });
+                                console.log(formData.id +' '+String(item.id));
+                            }}
                             className={formData.id === item.id ? 'bg-gray-100 dark:bg-gray-800' : ''}
                         >
                             <TableCell>{String(item.type)}</TableCell>
@@ -224,7 +227,8 @@ const Revenue = () => {
                                 {item.clients?.company_name || `${item.clients?.first_name} ${item.clients?.last_name}`}
                             </TableCell>
                             <TableCell className="text-right">
-                                {formData.id === item.id && (
+
+                                {String(formData.id) === String(item.id) && (
                                     <Button
                                         size="sm"
                                         variant="light"
