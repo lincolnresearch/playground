@@ -216,7 +216,7 @@ const Revenue = () => {
                             key = {String(item.id)}
                             onClick={() => {
                                 setFormData({ ...item, id: item.id });
-                                console.log(formData.id +' '+String(item.id));
+                                console.log(String(formData.id) +' '+String(item.id));
                             }}
                             className={formData.id === item.id ? 'bg-gray-100 dark:bg-gray-800' : ''}
                         >
